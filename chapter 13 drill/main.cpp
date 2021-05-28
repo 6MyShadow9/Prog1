@@ -17,16 +17,16 @@ int main(){
     Simple_window win{Point{100, 100}, x_max, y_max, "Window"};
 
     int x_grid_end=800;
-    int x_grid=x_grid_end/8;
-    int y_grid=y_max/8;
+    int x_grid=x_grid_end/15;
+    int y_grid=y_max/16;
 
 
 //2. feladat
     Lines grid; //Négyzetrács
-    for(int i=0; i<8; i++){
+    for(int i=0; i<15; i++){
         grid.add(Point{(i+1)*x_grid, 0}, Point{(i+1)*x_grid, y_max});//Függőleges
     }
-    for(int i=0; i<8; i++){
+    for(int i=0; i<16; i++){
         grid.add(Point{0, (i+1)*y_grid}, Point{x_grid_end, (i+1)*y_grid});//Vízszintes
     }
     win.attach(grid);

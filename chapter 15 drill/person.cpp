@@ -1,105 +1,96 @@
-
 #include <iostream>
 #include <vector>
 #include <string>
+#include <stdexcept>
+
+using namespace std;
+
+
 
 struct Person
 {
-	Person() = default;
-	
-	Person(std::string &&fn, std::string &&sn, int &&a)
-	:
-	firstName(std::move(fn)),
-	secondName(std::move(sn)),
-	age(std::move(a))
-	{
-		const std::string fullName = fn + " " + sn;
-		const std::string illegal = ";:\"'[]*&^%$#@!";
-		if(a < 0 || a > 150)
-		{
-			throw "Pls enter a valid age(0-150) or be a wizard";
-			
-		}
-		for(int i = 0; i < fullName.size(); ++i)
-		{
-			for(int j = 0; j < illegal.size(); ++j)
-			{
-				if(fn[i] == illegal[j])
-				{
-					throw "Your name is illegal";
-				}
-			}
-		}
-	}
-	
-	std::string GetFirstName() const
-	{
-		return firstName;
-	}
-	
-	std::string GetSecondName() const
-	{
-		return secondName;
-	}
-	
-	int GetAge() const
-	{
-		return age;
-	}
-	
+		Person() { }
+		Person(string ff, string ll, int aa);
+
+		string first_name() const {return first;}
+		string last_name() const {return last;}
+		int age() const {return a;}
+
 	private:
-		std::string firstName;
-		std::string secondName;
-		int age;
+		string first;
+		string last;
+		int a;
 };
 
-std::istream &operator>>(std::istream &is, Person &p)
+Person::Person(string ff, string ll, int aa) : first{ff}, last{ll}, a{aa}
 {
-	std::string fn, sn;
-	int a;	
-	is >> fn >> sn >> a;
-	if(!is) return is;
-	p = Person(std::move(fn), std::move(sn), std::move(a));
+	if (aa < 0 || 150 < aa) error("invalid age");
+
+	string fullname = ff + ll;
+	for (char c : fullname)
+	{
+		switch(c)
+		{
+		case ';' : case ':' : case '"' : case '[' : case ']' : case '*' : case '&' : case '^' : case '%' : case '$' : case '#' : case '@' : case '!' :
+			error("bad char in one or both name(s)");
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+
+ostream& operator << (ostream& os, const Person& p)
+{
+	return os << p.first_name() << " " << p.last_name() << " " << p.age(); 
+}
+
+istream& operator >> (istream& is, Person& p)
+{
+	string f;
+	string l;
+	int a;
+
+	is >> f >> l >> a;
+
+	if (!is) error ("cant read into: Person");
+
+	p = Person(f, l, a);
+
 	return is;
 }
 
-std::ostream &operator<<(std::ostream &os, const Person &p)
-{
-	return os << p.GetFirstName() << " " << p.GetSecondName() << " " << p.GetAge();
-}
 
 int main()
 {
 	try
 	{
-	/*Person p1;
-	p1.name = "Goofy";
-	p1.age = 63;
-	std::cout << p1.name << p1.age << std::endl;
-	std::cout << "Enter your name and age :c\n";
-	Person p2;
-	std::cin >> p2;
-	std::cout << p2;
-	return 0;
-	*/
-		Person p3;
-		std::vector<Person> persons;
-		while(std::cin >> p3)
-		{
-			persons.push_back(p3);
-		}
-		for(int i = 0; i < persons.size(); ++i)
-		{
-			std::cout << persons[i] << std::endl;
-		}	
-	}
-	catch(std::exception const &e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
-	catch(...)
-	{
-		std::cerr << "Something went wrong idk\n"; 
-	}
-}
+		vector<Person> vp;
 
+		cout << "Adj meg egy nevet, majd egy életkort (Kis Ferenc 12). a 'q' gombbal kiléphet. " << endl;
+
+	for (Person p; cin >> p;)
+	{
+		if (p.first_name()=="q") break;
+		vp.push_back(p);
+	}
+
+	for (Person p : vp)
+		cout << p << '\n';
+
+
+
+catch (exception& e)
+{
+	cerr<<"exception: " << e.what() << endl;
+	return 1;
+}
+catch(...)
+{
+	cerr << "unknown error! \n";
+	return 2;
+}
+}
+return 0;
+}
